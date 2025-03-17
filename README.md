@@ -124,3 +124,34 @@ source .env && gcloud --project=${PROJECT} iam service-accounts keys create gcs_
 - Keep your service account key secure and never commit it to version control
 - Add `.env` and `gcs_storage_key.json` to your `.gitignore` file
 - Consider using [Workload Identity](https://cloud.google.com/iam/docs/workload-identity-federation) for production environments
+
+## Development Setup
+
+### Python Version Management with pyenv
+
+We recommend using [pyenv](https://github.com/pyenv/pyenv) to manage Python versions. Here's how to get started:
+
+1. Install pyenv:
+   - **macOS** (using Homebrew):
+     ```bash
+     brew install pyenv
+     ```
+   - **Linux**:
+     ```bash
+     curl https://pyenv.run | bash
+     ```
+   - For detailed installation instructions, visit the [pyenv installation guide](https://github.com/pyenv/pyenv#installation)
+
+2. Add pyenv to your shell configuration:
+   ```bash
+   echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+   echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+   echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+   ```
+   Note: If you're using zsh, replace `.bashrc` with `.zshrc`
+
+3. Install and set the Python version for this project:
+   ```bash
+   pyenv install 3.x.x  # Replace with your desired Python version
+   pyenv local 3.x.x    # Sets the Python version for this directory
+   ```
