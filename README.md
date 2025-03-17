@@ -97,10 +97,10 @@ The following settings are configured through environment variables:
 pyenv install 3.12
 
 # create virtualenv for the project
-pyenv virtualenv 3.12.6 iA_shared_files
+pyenv virtualenv 3.12.6 gcs_upload_and_sign
 
 # set local virtualenv
-pyenv local iA_shared_files
+pyenv local gcs_upload_and_sign
 
 # install dependencies
 pip install -r requirements.txt
