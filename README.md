@@ -91,21 +91,6 @@ The following settings are configured through environment variables:
 
 ## Initial Setup (if needed)
 
-### Python Environment Setup
-```sh
-# install pyenv python version
-pyenv install 3.12
-
-# create virtualenv for the project
-pyenv virtualenv 3.12.6 gcs_upload_and_sign
-
-# set local virtualenv
-pyenv local gcs_upload_and_sign
-
-# install dependencies
-pip install -r requirements.txt
-```
-
 ### Service Account Setup
 
 1. [Create a service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts#creating) in your Google Cloud Project
@@ -144,14 +129,37 @@ We recommend using [pyenv](https://github.com/pyenv/pyenv) to manage Python vers
 
 2. Add pyenv to your shell configuration:
    ```bash
+   # For bash users (add to ~/.bashrc):
    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
    echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
    echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+
+   # For zsh users (add to ~/.zshrc):
+   echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
+   echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
+   echo 'eval "$(pyenv init -)"' >> ~/.zshrc
    ```
-   Note: If you're using zsh, replace `.bashrc` with `.zshrc`
+   
+   After adding these lines, restart your shell or run:
+   ```bash
+   # For bash:
+   source ~/.bashrc
+   
+   # For zsh:
+   source ~/.zshrc
+   ```
 
 3. Install and set the Python version for this project:
    ```bash
-   pyenv install 3.x.x  # Replace with your desired Python version
-   pyenv local 3.x.x    # Sets the Python version for this directory
+   # install pyenv python version
+   pyenv install 3.12
+
+   # create virtualenv for the project
+   pyenv virtualenv 3.12.6 gcs_upload_and_sign
+
+   # set local virtualenv
+   pyenv local gcs_upload_and_sign
+
+   # install dependencies
+   pip install -r requirements.txt
    ```
