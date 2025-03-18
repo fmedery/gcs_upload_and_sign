@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+import pyperclip
 from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
@@ -93,6 +94,10 @@ def main():
         signed_url = upload_and_sign(file_path, bucket_name, credentials_path)
         print("\nUpload successful!")
         print(f"Signed URL (valid for 7 days):\n{signed_url}")
+        
+        # Copy URL to clipboard
+        pyperclip.copy(signed_url)
+        print("\nURL has been copied to clipboard!")
     except Exception as e:
         print(f"Error: {str(e)}")
         sys.exit(1)

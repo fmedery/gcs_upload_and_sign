@@ -24,7 +24,7 @@ cp .env.template .env
 vim .env
 ```
 
-## Usage
+## Upload and create a signed URL
 
 Run the script with a file path as an argument:
 
@@ -79,15 +79,48 @@ The following settings are configured through environment variables:
 - `GCS_CREDENTIALS_PATH`: Path to your service account key file (optional, defaults to ./gcs_storage_key.json)
 - URL validity period: 7 days (fixed)
 
-## Requirements
-
-- google-cloud-storage>=2.14.0
-
-## Notes
+### Notes
 
 - The signed URL will expire after 7 days
 - File names are automatically sanitized to ensure compatibility
 - Original files are not modified; only the uploaded version has a sanitized name
+
+## Sign Existing Files
+
+A companion script `gcs_sign_existing.py` allows you to generate signed URLs for files already in your bucket.
+
+### Usage
+
+Run the script without arguments to see a list of files:
+
+```sh
+python gcs_sign_existing.py
+```
+
+This will:
+1. List all files in your configured bucket
+2. Allow you to select a file by number
+3. Generate a new 7-day signed URL for the selected file
+
+### Example
+
+```sh
+$ python gcs_sign_existing.py
+Files in bucket my-bucket:
+1) documents/report.pdf
+2) images/logo.png
+3) files/data.csv
+
+Enter the number of the file to sign (or 'q' to quit): 1
+
+Signed URL for documents/report.pdf (valid for 7 days):
+https://storage.googleapis.com/my-bucket/documents/report.pdf?X-Goog-Algorithm=...
+```
+
+The script uses the same environment variables and credentials as the upload script:
+- `GCS_BUCKET_NAME`: Your Google Cloud Storage bucket name
+- `GCS_CREDENTIALS_PATH`: Path to your service account key file
+
 
 ## Initial Setup (if needed)
 
@@ -163,3 +196,4 @@ We recommend using [pyenv](https://github.com/pyenv/pyenv) to manage Python vers
    # install dependencies
    pip install -r requirements.txt
    ```
+
