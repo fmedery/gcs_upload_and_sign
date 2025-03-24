@@ -1,0 +1,158 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Virtual Environments
+.env
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pythonenv*/
+
+# Python Version Management
+.python-version
+.pyenv/
+.pyenv-virtualenv/
+**/.pyenv/versions/
+**/.pyenv/virtualenvs/
+
+# Distribution and packaging
+dist/
+build/
+*.egg-info/
+*.egg
+MANIFEST
+.eggs/
+wheels/
+share/python-wheels/
+develop-eggs/
+
+# IDE specific
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.settings/
+.project
+.pydevproject
+.spyderproject
+.spyproject
+.ropeproject
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Testing and coverage
+htmlcov/
+.tox/
+.nox/
+.coverage.*
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Documentation
+docs/_build/
+site/
+.mkdocs/
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+*.sql
+
+# Environment variables and secrets
+.env*
+!.env.example
+!.env.template
+*.pem
+*.key
+credentials.json
+*_credentials.json
+service-account.json
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Project specific
+instance/
+.webassets-cache/
+celerybeat-schedule
+*.sage.py
+
+# Keep essential files (exclude from ignore)
+!requirements.txt
+!setup.py
+!pyproject.toml
+!setup.cfg
+!.pylintrc
+!.flake8
+!pytest.ini
+!README.md
+!CHANGELOG.md
+!LICENSE
+
+# Generated files
+generated/
+_generated/
+auto_generated/
+*.generated.*
+
+# Local development
+local_settings.py
+settings_local.py
+override.py
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# Poetry
+poetry.lock
+
+# Pipenv
+Pipfile.lock
+
+# Unit test reports
+TEST-*.xml
+test-output/
+
+# Performance profiling
+*.prof
+*.lprof
+*.stats
+
+# Security
+*.cert
+*.crt
+*.key
+*.pem
+*.p12
+*.pfx
+*.csr 
