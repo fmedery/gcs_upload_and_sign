@@ -3,8 +3,9 @@
 import os
 import re
 import sys
+import json
 import pyperclip
-from datetime import timedelta
+from datetime import timedelta, datetime
 from pathlib import Path
 from dotenv import load_dotenv
 from google.cloud import storage
@@ -36,6 +37,43 @@ def sanitize_filename(filename):
     
     return f"{name}{ext.lower()}"
 
+def load_url_records(records_file='signed_urls.json'):
+    """Load existing URL records from JSON file"""
+    try:
+        with open(records_file, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+
+def save_url_record(filename, signed_url, expiration_date, records_file='signed_urls.json'):
+    """Save URL record with expiration date"""
+    records = load_url_records(records_file)
+    
+    records[filename] = {
+        'url': signed_url,
+        'expiration': expiration_date.isoformat(),
+        'created_at': datetime.now().isoformat()
+    }
+    
+    with open(records_file, 'w') as f:
+        json.dump(records, f, indent=2)
+
+def check_url_expiration(filename, records_file='signed_urls.json'):
+    """Check if URL for given filename is expired"""
+    records = load_url_records(records_file)
+    
+    if filename not in records:
+        return None, "No URL record found"
+    
+    record = records[filename]
+    expiration = datetime.fromisoformat(record['expiration'])
+    
+    if datetime.now() > expiration:
+        return False, "URL has expired"
+    else:
+        days_left = (expiration - datetime.now()).days
+        return True, f"URL valid for {days_left} more days"
+
 def upload_and_sign(file_path, bucket_name, credentials_path):
     """
     Upload a file to GCS bucket and generate a signed URL
@@ -60,6 +98,9 @@ def upload_and_sign(file_path, bucket_name, credentials_path):
     
     print(f"File uploaded as: {sanitized_filename}")
     
+    # Calculate expiration date (7 days from now)
+    expiration_date = datetime.now() + timedelta(days=7)
+    
     # Generate signed URL (7 days is the maximum allowed time)
     signed_url = blob.generate_signed_url(
         version="v4",
@@ -67,7 +108,10 @@ def upload_and_sign(file_path, bucket_name, credentials_path):
         method="GET"
     )
     
-    return signed_url
+    # Save URL record
+    save_url_record(sanitized_filename, signed_url, expiration_date)
+    
+    return signed_url, sanitized_filename
 
 def main():
     if len(sys.argv) != 2:
@@ -91,13 +135,17 @@ def main():
     file_path = sys.argv[1]
     
     try:
-        signed_url = upload_and_sign(file_path, bucket_name, credentials_path)
+        signed_url, filename = upload_and_sign(file_path, bucket_name, credentials_path)
         print("\nUpload successful!")
         print(f"Signed URL (valid for 7 days):\n{signed_url}")
         
         # Copy URL to clipboard
         pyperclip.copy(signed_url)
         print("\nURL has been copied to clipboard!")
+        
+        # Check and display URL status
+        _, status = check_url_expiration(filename)
+        print(f"\nStatus: {status}")
     except Exception as e:
         print(f"Error: {str(e)}")
         sys.exit(1)

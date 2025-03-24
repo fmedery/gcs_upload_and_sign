@@ -1,126 +1,95 @@
-# GCS File Uploader and URL Signer
+# Google Cloud Storage URL Generator
 
-This Python script allows you to upload files to Google Cloud Storage and generate signed URLs. The script automatically sanitizes filenames by converting them to lowercase and removing special characters.
+This tool provides scripts for uploading files to Google Cloud Storage and generating signed URLs, with additional features for tracking URL expiration.
 
-## Prerequisites
+## Features
 
-1. Python 3.12 or later
-2. A Google Cloud Service Account with appropriate permissions
-3. The service account key file (`gcs_storage_key.json`)
+- Upload files to Google Cloud Storage
+- Generate signed URLs (valid for 7 days)
+- Automatic clipboard copy of generated URLs
+- Track URL expiration dates
+- Clean up and monitor expired URLs
+
+## Requirements
+
+- Python 3.x
+- Google Cloud Storage account and credentials
+- Required Python packages (install via `pip install -r requirements.txt`):
+  - google-cloud-storage
+  - python-dotenv
+  - pyperclip
 
 ## Setup
 
-1. Install Python dependencies:
-```sh
-pip install -r requirements.txt
-```
+1. Clone this repository
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Copy `.env.template` to `.env` and configure:
+   ```bash
+   cp .env.template .env
+   ```
+4. Edit `.env` file with your settings:
+   ```
+   GCS_BUCKET_NAME=your-bucket-name
+   GCS_CREDENTIALS_PATH=./gcs_storage_key.json
+   ```
+5. Place your Google Cloud Storage credentials JSON file in the project directory
 
-2. Create and configure your environment file:
-```sh
-# Copy the template file
-cp .env.template .env
+## Usage
 
-# Edit the .env file with your settings
-vim .env
-```
+### Upload and Generate Signed URL
 
-## Upload and create a signed URL
-
-Run the script with a file path as an argument:
-
-```sh
-python gcs_upload_and_sign.py "/path/to/your/file.pdf"
-```
-
-Note: The script will automatically load environment variables from the `.env` file.
-
-### What the Script Does
-
-1. Takes a file path as input
-2. Sanitizes the filename:
-   - Converts to lowercase
-   - Removes special characters
-   - Replaces spaces with underscores
-3. Uploads the file to the GCS bucket
-4. Generates a signed URL valid for 7 days (maximum allowed time)
-
-### Example
-
-```sh
-# Upload a file with spaces and special characters
-python gcs_upload_and_sign.py "My File (2024)!.pdf"
+```bash
+python gcs_upload_and_sign.py <file_path>
 ```
 
 This will:
-- Sanitize the filename to: `my_file_2024.pdf`
-- Upload it to the bucket
-- Generate and display a signed URL
+- Upload the file to GCS
+- Generate a signed URL (valid for 7 days)
+- Copy the URL to clipboard
+- Store URL information for tracking
 
-### Output
+### Check Expired URLs
 
-The script will output:
-- The sanitized filename used for upload
-- The signed URL (valid for 7 days)
-- Any error messages if something goes wrong
-
-## Error Handling
-
-The script includes checks for:
-- Missing file path argument
-- Missing environment variables
-- Non-existent files or credentials
-- Upload failures
-- URL signing issues
-
-## Configuration
-
-The following settings are configured through environment variables:
-- `GCS_BUCKET_NAME`: Your Google Cloud Storage bucket name (required)
-- `GCS_CREDENTIALS_PATH`: Path to your service account key file (optional, defaults to ./gcs_storage_key.json)
-- URL validity period: 7 days (fixed)
-
-### Notes
-
-- The signed URL will expire after 7 days
-- File names are automatically sanitized to ensure compatibility
-- Original files are not modified; only the uploaded version has a sanitized name
-
-## Sign Existing Files
-
-A companion script `gcs_sign_existing.py` allows you to generate signed URLs for files already in your bucket.
-
-### Usage
-
-Run the script without arguments to see a list of files:
-
-```sh
-python gcs_sign_existing.py
+```bash
+python check_expired_urls.py
 ```
 
 This will:
-1. List all files in your configured bucket
-2. Allow you to select a file by number
-3. Generate a new 7-day signed URL for the selected file
+- Show all valid URLs with remaining days
+- Remove expired URLs from tracking
+- Display a report of valid and expired URLs
 
-### Example
+## URL Tracking
 
-```sh
-$ python gcs_sign_existing.py
-Files in bucket my-bucket:
-1) documents/report.pdf
-2) images/logo.png
-3) files/data.csv
+URLs are tracked in `signed_urls.json` with the following information:
+- Original signed URL
+- Creation timestamp
+- Expiration date
+- Filename
 
-Enter the number of the file to sign (or 'q' to quit): 1
+## Notes
 
-Signed URL for documents/report.pdf (valid for 7 days):
-https://storage.googleapis.com/my-bucket/documents/report.pdf?X-Goog-Algorithm=...
-```
+- Signed URLs are valid for 7 days (maximum allowed by Google Cloud Storage)
+- Filenames are automatically sanitized (lowercase, no special characters)
+- URLs are automatically copied to clipboard after generation
 
-The script uses the same environment variables and credentials as the upload script:
-- `GCS_BUCKET_NAME`: Your Google Cloud Storage bucket name
-- `GCS_CREDENTIALS_PATH`: Path to your service account key file
+## Troubleshooting
 
+- If clipboard copying fails, ensure you have proper permissions and a display server running
+- For Linux users, you might need to install `xclip` or `xsel`:
+  ```bash
+  # For Debian/Ubuntu
+  sudo apt-get install xclip
+  # For Fedora
+  sudo dnf install xclip
+  ```
+
+## License
+
+[Add your license information here]
 
 ## Initial Setup (if needed)
 
