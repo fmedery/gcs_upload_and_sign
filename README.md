@@ -62,6 +62,18 @@ This will:
 - Remove expired URLs from tracking
 - Display a report of valid and expired URLs
 
+### Manage Stored URLs
+
+```bash
+python manage_urls.py
+```
+
+This will:
+- Display all stored URLs with their status
+- Allow you to delete specific URLs
+- Clean up expired URLs
+- Manage all URL records interactively
+
 ## URL Tracking
 
 URLs are tracked in `signed_urls.json` with the following information:

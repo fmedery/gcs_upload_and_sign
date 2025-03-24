@@ -46,13 +46,31 @@ def load_url_records(records_file='signed_urls.json'):
         return {}
 
 def save_url_record(filename, signed_url, expiration_date, records_file='signed_urls.json'):
-    """Save URL record with expiration date"""
+    """Save URL record with expiration date and maintain history"""
     records = load_url_records(records_file)
     
+    # If file exists, move current URL to history
+    if filename in records:
+        current_record = records[filename]
+        if 'history' not in current_record:
+            current_record['history'] = []
+        
+        # Add current URL to history
+        current_record['history'].append({
+            'url': current_record['url'],
+            'created_at': current_record['created_at'],
+            'expiration': current_record['expiration']
+        })
+        
+        # Keep only last 5 historical URLs
+        current_record['history'] = current_record['history'][-5:]
+    
+    # Create or update the record
     records[filename] = {
         'url': signed_url,
         'expiration': expiration_date.isoformat(),
-        'created_at': datetime.now().isoformat()
+        'created_at': datetime.now().isoformat(),
+        'history': records.get(filename, {}).get('history', [])
     }
     
     with open(records_file, 'w') as f:
