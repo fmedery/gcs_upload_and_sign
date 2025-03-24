@@ -37,3 +37,6 @@ ENV/
 
 #Test files
 test*
+
+#cursor rules
+.cursorrules
