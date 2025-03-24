@@ -50,6 +50,7 @@ This will:
 - Generate a signed URL (valid for 7 days)
 - Copy the URL to clipboard
 - Store URL information for tracking
+- Keep history of previous URLs for the same file (up to 5 previous URLs)
 
 ### Check Expired URLs
 
@@ -69,9 +70,12 @@ python manage_urls.py
 ```
 
 This will:
-- Display all stored URLs with their status
-- Allow you to delete specific URLs
-- Clean up expired URLs
+- Display all stored URLs with their status and number of previous URLs
+- Allow you to:
+  - Delete specific URLs
+  - Clean up expired URLs
+  - View URL history for each file
+  - Delete all URLs
 - Manage all URL records interactively
 
 ## URL Tracking
@@ -81,6 +85,10 @@ URLs are tracked in `signed_urls.json` with the following information:
 - Creation timestamp
 - Expiration date
 - Filename
+- History of previous URLs (up to 5 entries) containing:
+  - Previous URL
+  - Creation date
+  - Expiration date
 
 ## Notes
 
