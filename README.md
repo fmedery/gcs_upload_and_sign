@@ -1,23 +1,26 @@
-# Google Cloud Storage URL Generator
+# Google Cloud Storage URL Manager
 
-This tool provides scripts for uploading files to Google Cloud Storage and generating signed URLs, with additional features for tracking URL expiration.
+A tool for managing Google Cloud Storage signed URLs with features for uploading, tracking, and managing URL expiration.
 
 ## Features
 
-- Upload files to Google Cloud Storage
+- Upload files to Google Cloud Storage with progress tracking
 - Generate signed URLs (valid for 7 days)
 - Automatic clipboard copy of generated URLs
-- Track URL expiration dates
-- Clean up and monitor expired URLs
+- Track URL expiration dates and history
+- Interactive URL management interface
+- Support for multiple URLs per file (history tracking)
+- Visual progress bar for file uploads
+- Color-coded status indicators
 
 ## Requirements
 
 - Python 3.x
 - Google Cloud Storage account and credentials
-- Required Python packages (install via `pip install -r requirements.txt`):
-  - google-cloud-storage
-  - python-dotenv
-  - pyperclip
+- Required Python packages:
+  ```bash
+  pip install -r requirements.txt
+  ```
 
 ## Setup
 
@@ -26,11 +29,11 @@ This tool provides scripts for uploading files to Google Cloud Storage and gener
    ```bash
    pip install -r requirements.txt
    ```
-3. Copy `.env.template` to `.env` and configure:
+3. Copy `.env.template` to `.env`:
    ```bash
    cp .env.template .env
    ```
-4. Edit `.env` file with your settings:
+4. Configure your `.env` file:
    ```
    GCS_BUCKET_NAME=your-bucket-name
    GCS_CREDENTIALS_PATH=./gcs_storage_key.json
@@ -42,70 +45,95 @@ This tool provides scripts for uploading files to Google Cloud Storage and gener
 ### Upload and Generate Signed URL
 
 ```bash
+# Upload and generate URL
 python gcs_upload_and_sign.py <file_path>
+
+# View existing URL for a file
+python gcs_upload_and_sign.py --show <filename>
 ```
 
-This will:
-- Upload the file to GCS
-- Generate a signed URL (valid for 7 days)
-- Copy the URL to clipboard
-- Store URL information for tracking
-- Keep history of previous URLs for the same file (up to 5 previous URLs)
-
-### Check Expired URLs
-
-```bash
-python check_expired_urls.py
-```
-
-This will:
-- Show all valid URLs with remaining days
-- Remove expired URLs from tracking
-- Display a report of valid and expired URLs
-
-### Manage Stored URLs
+### Manage URLs
 
 ```bash
 python manage_urls.py
 ```
 
-This will:
-- Display all stored URLs with their status and number of previous URLs
-- Allow you to:
-  - Delete specific URLs
-  - Clean up expired URLs
-  - View URL history for each file
-  - Delete all URLs
-- Manage all URL records interactively
+The management interface provides options to:
+1. **Manage/Delete URLs**
+   - Delete specific URLs
+   - Remove all expired URLs
+   - Delete all URLs
+   - View URL history
+2. **View Active URL**
+   - Show URL details
+   - Copy URL to clipboard
+   - Check expiration status
 
-## URL Tracking
+### URL Information
 
-URLs are tracked in `signed_urls.json` with the following information:
-- Original signed URL
+URLs are tracked with:
+- Current status (VALID/EXPIRED)
+- Days remaining until expiration
 - Creation timestamp
-- Expiration date
-- Filename
-- History of previous URLs (up to 5 entries) containing:
-  - Previous URL
-  - Creation date
-  - Expiration date
+- History of previous URLs (up to 5)
+- File association
+
+## Features in Detail
+
+### Upload Progress
+- Visual progress bar showing:
+  - Upload speed
+  - Estimated time remaining
+  - Percentage complete
+  - File size
+
+### URL Management
+- Color-coded status indicators
+  - Green: Valid URLs
+  - Red: Expired URLs
+- URL history tracking
+- Bulk URL management
+- Automatic clipboard integration
+
+### File Handling
+- Automatic file sanitization
+- Secure upload process
+- Progress tracking
+- Checksum verification
 
 ## Notes
 
 - Signed URLs are valid for 7 days (maximum allowed by Google Cloud Storage)
 - Filenames are automatically sanitized (lowercase, no special characters)
-- URLs are automatically copied to clipboard after generation
+- URLs are tracked in `signed_urls.json`
+- Previous URLs are kept in history (up to 5 per file)
 
 ## Troubleshooting
 
-- If clipboard copying fails, ensure you have proper permissions and a display server running
-- For Linux users, you might need to install `xclip` or `xsel`:
+### Clipboard Issues
+- For Linux users, install xclip or xsel:
   ```bash
-  # For Debian/Ubuntu
+  # Debian/Ubuntu
   sudo apt-get install xclip
-  # For Fedora
+  # Fedora
   sudo dnf install xclip
   ```
+
+### Common Issues
+- If upload fails, check your credentials and bucket permissions
+- If clipboard copying fails, ensure you have proper permissions
+- For connection issues, verify your Google Cloud credentials
+
+## Security Considerations
+
+- Credentials are never logged or stored in URL history
+- Environment variables are used for sensitive configuration
+- Files are uploaded with secure defaults
+- URLs are generated with proper expiration handling
+
+## Contributing
+
+[Add your contribution guidelines here]
 
 ## License
 

@@ -3,6 +3,7 @@
 import json
 import os
 from datetime import datetime
+import pyperclip
 
 def load_url_records(records_file='signed_urls.json'):
     """Load existing URL records from JSON file"""
@@ -74,6 +75,27 @@ def show_url_history(records, filename):
             print(f"   URL: {old_url['url']}")
     else:
         print("\nNo previous URLs")
+
+def show_active_url(records, filename):
+    """Display active URL information for a specific file"""
+    if filename not in records:
+        print(f"\nNo record found for {filename}")
+        return
+
+    record = records[filename]
+    status, days_left = get_url_status(record['expiration'])
+    
+    print(f"\nActive URL for {filename}:")
+    print("-" * 80)
+    print(f"Status: {status} (Days left: {days_left})")
+    print(f"Created: {record['created_at']}")
+    print(f"URL: {record['url']}")
+    
+    # Add option to copy URL to clipboard
+    copy_choice = input("\nWould you like to copy the URL to clipboard? (y/n): ").lower()
+    if copy_choice == 'y':
+        pyperclip.copy(record['url'])
+        print("URL copied to clipboard!")
 
 def delete_urls(records):
     """Interactive URL deletion"""
@@ -157,25 +179,37 @@ def main():
     records_file = 'signed_urls.json'
     
     while True:
-        os.system('clear' if os.name == 'posix' else 'cls')  # Clear screen
+        os.system('clear' if os.name == 'posix' else 'cls')
         
         records = load_url_records(records_file)
         
         print("\nURL Management Tool")
         print("=" * 20)
-        print("1. View URLs")
-        print("2. Manage/Delete URLs")
+        print("1. Manage/Delete URLs")
+        print("2. View Active URL")
         print("3. Exit")
 
         choice = input("\nEnter your choice (1-3): ").strip()
 
         if choice == '1':
-            display_urls(records)
-            input("\nPress Enter to continue...")
-
-        elif choice == '2':
             updated_records = delete_urls(records)
             save_url_records(updated_records, records_file)
+
+        elif choice == '2':
+            if display_urls(records):
+                idx = input("\nEnter URL number to show active URL: ").strip()
+                try:
+                    idx = int(idx)
+                    if 1 <= idx <= len(records):
+                        filename = list(records.keys())[idx-1]
+                        show_active_url(records, filename)
+                        input("\nPress Enter to continue...")
+                    else:
+                        print("\nInvalid URL number")
+                        input("Press Enter to continue...")
+                except ValueError:
+                    print("\nInvalid input. Please enter a number.")
+                    input("Press Enter to continue...")
 
         elif choice == '3':
             print("\nGoodbye!")

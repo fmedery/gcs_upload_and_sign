@@ -167,12 +167,52 @@ def upload_and_sign(file_path, bucket_name, credentials_path):
     
     return signed_url, sanitized_filename
 
+def show_active_url(filename):
+    """Display active URL for a file"""
+    records = load_url_records()
+    
+    if filename not in records:
+        print(f"No active URL found for: {filename}")
+        return False
+    
+    record = records[filename]
+    status, days_left = check_url_expiration(filename)
+    
+    print(f"\nActive URL for {filename}:")
+    print("-" * 80)
+    print(f"Status: {status}")
+    print(f"Created: {record['created_at']}")
+    if status:
+        print(f"Days remaining: {days_left}")
+    print(f"URL: {record['url']}")
+    
+    # Copy URL to clipboard if it's still valid
+    if status:
+        pyperclip.copy(record['url'])
+        print("\nURL has been copied to clipboard!")
+    
+    return True
+
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python upload_and_sign.py <file_path>")
+    if len(sys.argv) not in [2, 3]:
+        print("Usage:")
+        print("  Upload and sign: python upload_and_sign.py <file_path>")
+        print("  View active URL: python upload_and_sign.py --show <filename>")
         sys.exit(1)
     
-    # Get configuration from environment variables with defaults
+    # Check if we're just showing an active URL
+    if sys.argv[1] == '--show':
+        if len(sys.argv) != 3:
+            print("Error: Please provide a filename to show")
+            print("Usage: python upload_and_sign.py --show <filename>")
+            sys.exit(1)
+        
+        filename = sanitize_filename(sys.argv[2])
+        if not show_active_url(filename):
+            sys.exit(1)
+        sys.exit(0)
+    
+    # Rest of the existing upload logic
     bucket_name = os.getenv('GCS_BUCKET_NAME')
     credentials_path = os.getenv('GCS_CREDENTIALS_PATH', './gcs_storage_key.json')
     
@@ -193,12 +233,8 @@ def main():
         print("\nUpload successful!")
         print(f"Signed URL (valid for 7 days):\n{signed_url}")
         
-        # Copy URL to clipboard
-        pyperclip.copy(signed_url)
-        print("\nURL has been copied to clipboard!")
-        
         # Check and display URL status
-        _, status = check_url_expiration(filename)
+        status, days_left = check_url_expiration(filename)
         print(f"\nStatus: {status}")
     except Exception as e:
         print(f"Error: {str(e)}")
