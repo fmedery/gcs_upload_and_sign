@@ -45,11 +45,7 @@ A tool for managing Google Cloud Storage signed URLs with features for uploading
 ### Upload and Generate Signed URL
 
 ```bash
-# Upload and generate URL
 python gcs_upload_and_sign.py <file_path>
-
-# View existing URL for a file
-python gcs_upload_and_sign.py --show <filename>
 ```
 
 ### Manage URLs

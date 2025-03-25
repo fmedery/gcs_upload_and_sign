@@ -194,25 +194,12 @@ def show_active_url(filename):
     return True
 
 def main():
-    if len(sys.argv) not in [2, 3]:
+    if len(sys.argv) != 2:
         print("Usage:")
-        print("  Upload and sign: python upload_and_sign.py <file_path>")
-        print("  View active URL: python upload_and_sign.py --show <filename>")
+        print("  python upload_and_sign.py <file_path>")
         sys.exit(1)
     
-    # Check if we're just showing an active URL
-    if sys.argv[1] == '--show':
-        if len(sys.argv) != 3:
-            print("Error: Please provide a filename to show")
-            print("Usage: python upload_and_sign.py --show <filename>")
-            sys.exit(1)
-        
-        filename = sanitize_filename(sys.argv[2])
-        if not show_active_url(filename):
-            sys.exit(1)
-        sys.exit(0)
-    
-    # Rest of the existing upload logic
+    # Get configuration from environment variables
     bucket_name = os.getenv('GCS_BUCKET_NAME')
     credentials_path = os.getenv('GCS_CREDENTIALS_PATH', './gcs_storage_key.json')
     
