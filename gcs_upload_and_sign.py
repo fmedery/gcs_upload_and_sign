@@ -7,6 +7,7 @@ import json
 import pyperclip
 from datetime import timedelta, datetime
 from pathlib import Path
+from tqdm import tqdm
 from dotenv import load_dotenv
 from google.cloud import storage
 
@@ -92,6 +93,26 @@ def check_url_expiration(filename, records_file='signed_urls.json'):
         days_left = (expiration - datetime.now()).days
         return True, f"URL valid for {days_left} more days"
 
+class ProgressCallback:
+    def __init__(self, filename):
+        self._filename = filename
+        self._size = float(os.path.getsize(filename))
+        self._progress_bar = tqdm(
+            total=self._size,
+            unit='iB',
+            unit_scale=True,
+            desc=f'Uploading {os.path.basename(filename)}'
+        )
+        self._previous = 0
+
+    def __call__(self, bytes_transferred):
+        current = bytes_transferred
+        self._progress_bar.update(current - self._previous)
+        self._previous = current
+
+    def finish(self):
+        self._progress_bar.close()
+
 def upload_and_sign(file_path, bucket_name, credentials_path):
     """
     Upload a file to GCS bucket and generate a signed URL
@@ -110,11 +131,26 @@ def upload_and_sign(file_path, bucket_name, credentials_path):
     original_filename = os.path.basename(file_path)
     sanitized_filename = sanitize_filename(original_filename)
     
-    # Upload the file
+    # Upload the file with progress bar
     blob = bucket.blob(sanitized_filename)
-    blob.upload_from_filename(file_path)
     
-    print(f"File uploaded as: {sanitized_filename}")
+    # Create progress callback
+    progress_callback = ProgressCallback(file_path)
+    
+    try:
+        # Upload with progress
+        blob.upload_from_filename(
+            file_path,
+            chunk_size=1024 * 1024,  # 1MB chunks
+            timeout=120,  # 2 minutes timeout
+            checksum=True,
+            retry=storage.retry.Retry(deadline=60),  # 1 minute deadline
+            callback=progress_callback
+        )
+    finally:
+        progress_callback.finish()
+    
+    print(f"\nFile uploaded as: {sanitized_filename}")
     
     # Calculate expiration date (7 days from now)
     expiration_date = datetime.now() + timedelta(days=7)
