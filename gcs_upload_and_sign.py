@@ -38,16 +38,22 @@ def sanitize_filename(filename):
     
     return f"{name}{ext.lower()}"
 
-def load_url_records(records_file='signed_urls.json'):
+def load_url_records(records_file=None):
     """Load existing URL records from JSON file"""
+    if records_file is None:
+        records_file = os.getenv('SIGNED_URLS_FILE', 'signed_urls.json')
+    
     try:
         with open(records_file, 'r') as f:
             return json.load(f)
     except FileNotFoundError:
         return {}
 
-def save_url_record(filename, signed_url, expiration_date, records_file='signed_urls.json'):
+def save_url_record(filename, signed_url, expiration_date, records_file=None):
     """Save URL record with expiration date and maintain history"""
+    if records_file is None:
+        records_file = os.getenv('SIGNED_URLS_FILE', 'signed_urls.json')
+    
     records = load_url_records(records_file)
     
     # If file exists, move current URL to history
@@ -77,8 +83,11 @@ def save_url_record(filename, signed_url, expiration_date, records_file='signed_
     with open(records_file, 'w') as f:
         json.dump(records, f, indent=2)
 
-def check_url_expiration(filename, records_file='signed_urls.json'):
+def check_url_expiration(filename, records_file=None):
     """Check if URL for given filename is expired"""
+    if records_file is None:
+        records_file = os.getenv('SIGNED_URLS_FILE', 'signed_urls.json')
+    
     records = load_url_records(records_file)
     
     if filename not in records:
@@ -161,7 +170,8 @@ def upload_and_sign(file_path, bucket_name, credentials_path, folder_path=None):
 
 def show_active_url(filename):
     """Display active URL for a file"""
-    records = load_url_records()
+    records_file = os.getenv('SIGNED_URLS_FILE', 'signed_urls.json')
+    records = load_url_records(records_file)
     
     if filename not in records:
         print(f"No active URL found for: {filename}")

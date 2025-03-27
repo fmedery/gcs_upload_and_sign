@@ -14,13 +14,14 @@ def load_config():
     
     bucket_name = os.getenv('GCS_BUCKET_NAME')
     credentials_path = os.getenv('GCS_CREDENTIALS_PATH', './gcs_storage_key.json')
+    signed_urls_file = os.getenv('SIGNED_URLS_FILE', 'signed_urls.json')
     
     if not bucket_name:
         sys.exit("Error: GCS_BUCKET_NAME environment variable is required")
     if not os.path.exists(credentials_path):
         sys.exit(f"Error: Credentials file not found at {credentials_path}")
         
-    return bucket_name, credentials_path
+    return bucket_name, credentials_path, signed_urls_file
 
 def list_bucket_files(bucket):
     """List all files in the bucket, excluding folder markers."""
@@ -49,7 +50,7 @@ def generate_signed_url(blob):
 
 def main():
     # Load configuration
-    bucket_name, credentials_path = load_config()
+    bucket_name, credentials_path, signed_urls_file = load_config()
     
     # Initialize GCS client
     try:

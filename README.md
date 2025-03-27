@@ -36,6 +36,7 @@ A tool for managing Google Cloud Storage signed URLs with features for uploading
    ```
    GCS_BUCKET_NAME=your-bucket-name
    GCS_CREDENTIALS_PATH=./gcs_storage_key.json
+   SIGNED_URLS_FILE=./signed_urls.json
    ```
 5. Place your Google Cloud Storage credentials JSON file in the project directory
 
