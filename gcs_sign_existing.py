@@ -23,13 +23,15 @@ def load_config():
     return bucket_name, credentials_path
 
 def list_bucket_files(bucket):
-    """List all files in the bucket."""
+    """List all files in the bucket, excluding folder markers."""
     files = []
     try:
         blobs = bucket.list_blobs()
         for blob in blobs:
-            files.append(blob.name)
-        return files
+            # Skip folder markers (objects ending with '/')
+            if not blob.name.endswith('/'):
+                files.append(blob.name)
+        return sorted(files)  # Sort files for consistent display
     except Exception as e:
         sys.exit(f"Error listing bucket contents: {e}")
 

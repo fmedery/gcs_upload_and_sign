@@ -4,14 +4,13 @@ A tool for managing Google Cloud Storage signed URLs with features for uploading
 
 ## Features
 
-- Upload files to Google Cloud Storage with progress tracking
+- Upload files to Google Cloud Storage
+- Support for folder organization within buckets
 - Generate signed URLs (valid for 7 days)
 - Automatic clipboard copy of generated URLs
 - Track URL expiration dates and history
 - Interactive URL management interface
 - Support for multiple URLs per file (history tracking)
-- Visual progress bar for file uploads
-- Color-coded status indicators
 
 ## Requirements
 
@@ -44,8 +43,14 @@ A tool for managing Google Cloud Storage signed URLs with features for uploading
 
 ### Upload and Generate Signed URL
 
+Basic upload to bucket root:
 ```bash
 python gcs_upload_and_sign.py <file_path>
+```
+
+Upload to a specific folder (will be created if it doesn't exist):
+```bash
+python gcs_upload_and_sign.py <file_path> folder1/subfolder2
 ```
 
 ### Manage URLs
@@ -72,16 +77,15 @@ URLs are tracked with:
 - Days remaining until expiration
 - Creation timestamp
 - History of previous URLs (up to 5)
-- File association
+- File association and full path within bucket
 
 ## Features in Detail
 
-### Upload Progress
-- Visual progress bar showing:
-  - Upload speed
-  - Estimated time remaining
-  - Percentage complete
-  - File size
+### Folder Organization
+- Support for nested folder structures
+- Automatic folder creation
+- Sanitized folder names
+- Full path tracking in URL history
 
 ### URL Management
 - Color-coded status indicators
@@ -94,15 +98,16 @@ URLs are tracked with:
 ### File Handling
 - Automatic file sanitization
 - Secure upload process
-- Progress tracking
 - Checksum verification
+- Support for folder organization
 
 ## Notes
 
 - Signed URLs are valid for 7 days (maximum allowed by Google Cloud Storage)
-- Filenames are automatically sanitized (lowercase, no special characters)
+- Filenames and folder names are automatically sanitized (lowercase, no special characters)
 - URLs are tracked in `signed_urls.json`
 - Previous URLs are kept in history (up to 5 per file)
+- Folders in Google Cloud Storage are virtual - they're part of the object name
 
 ## Troubleshooting
 
@@ -119,6 +124,7 @@ URLs are tracked with:
 - If upload fails, check your credentials and bucket permissions
 - If clipboard copying fails, ensure you have proper permissions
 - For connection issues, verify your Google Cloud credentials
+- For folder issues, ensure folder names don't contain invalid characters
 
 ## Security Considerations
 

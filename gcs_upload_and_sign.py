@@ -93,9 +93,14 @@ def check_url_expiration(filename, records_file='signed_urls.json'):
         days_left = (expiration - datetime.now()).days
         return True, f"URL valid for {days_left} more days"
 
-def upload_and_sign(file_path, bucket_name, credentials_path):
+def upload_and_sign(file_path, bucket_name, credentials_path, folder_path=None):
     """
     Upload a file to GCS bucket and generate a signed URL
+    Args:
+        file_path: Path to the file to upload
+        bucket_name: Name of the GCS bucket
+        credentials_path: Path to the service account credentials file
+        folder_path: Optional folder path within the bucket (e.g., 'folder1/subfolder2')
     """
     if not os.path.exists(file_path):
         print(f"Error: File {file_path} does not exist")
@@ -111,10 +116,24 @@ def upload_and_sign(file_path, bucket_name, credentials_path):
     original_filename = os.path.basename(file_path)
     sanitized_filename = sanitize_filename(original_filename)
     
-    # Upload the file
-    blob = bucket.blob(sanitized_filename)
+    # Construct the full blob path including folder if specified
+    if folder_path:
+        # Remove leading/trailing slashes and sanitize folder path
+        folder_path = folder_path.strip('/')
+        folder_parts = [sanitize_filename(part) for part in folder_path.split('/')]
+        blob_path = '/'.join(folder_parts + [sanitized_filename])
+        
+        # Create an empty object to ensure folder exists (GCS doesn't have real folders)
+        folder_marker = bucket.blob(f"{'/'.join(folder_parts)}/")
+        if not folder_marker.exists():
+            folder_marker.upload_from_string('')
+    else:
+        blob_path = sanitized_filename
     
-    print(f"\nUploading {original_filename}...")
+    # Upload the file
+    blob = bucket.blob(blob_path)
+    
+    print(f"\nUploading {original_filename} to {blob_path}...")
     
     # Simple upload without progress tracking
     blob.upload_from_filename(
@@ -123,7 +142,7 @@ def upload_and_sign(file_path, bucket_name, credentials_path):
         checksum='md5'
     )
     
-    print(f"File uploaded as: {sanitized_filename}")
+    print(f"File uploaded as: {blob_path}")
     
     # Calculate expiration date (7 days from now)
     expiration_date = datetime.now() + timedelta(days=7)
@@ -136,9 +155,9 @@ def upload_and_sign(file_path, bucket_name, credentials_path):
     )
     
     # Save URL record
-    save_url_record(sanitized_filename, signed_url, expiration_date)
+    save_url_record(blob_path, signed_url, expiration_date)
     
-    return signed_url, sanitized_filename
+    return signed_url, blob_path
 
 def show_active_url(filename):
     """Display active URL for a file"""
@@ -167,9 +186,12 @@ def show_active_url(filename):
     return True
 
 def main():
-    if len(sys.argv) != 2:
+    if len(sys.argv) < 2:
         print("Usage:")
-        print("  python upload_and_sign.py <file_path>")
+        print("  python upload_and_sign.py <file_path> [folder_path]")
+        print("Example:")
+        print("  python upload_and_sign.py myfile.pdf")
+        print("  python upload_and_sign.py myfile.pdf folder1/subfolder2")
         sys.exit(1)
     
     # Get configuration from environment variables
@@ -187,14 +209,15 @@ def main():
         sys.exit(1)
     
     file_path = sys.argv[1]
+    folder_path = sys.argv[2] if len(sys.argv) > 2 else None
     
     try:
-        signed_url, filename = upload_and_sign(file_path, bucket_name, credentials_path)
+        signed_url, blob_path = upload_and_sign(file_path, bucket_name, credentials_path, folder_path)
         print("\nUpload successful!")
         print(f"Signed URL (valid for 7 days):\n{signed_url}")
         
         # Check and display URL status
-        status, days_left = check_url_expiration(filename)
+        status, days_left = check_url_expiration(blob_path)
         print(f"\nStatus: {status}")
     except Exception as e:
         print(f"Error: {str(e)}")
